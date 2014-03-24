@@ -17,8 +17,6 @@ def main():
     # Parse command-line arguments 
     parser = argparse.ArgumentParser(description='Start remote graphical'
                                                  ' console session')
-    parser.add_argument('--hostname', '-i', dest='hostname', required=True,
-                        help='Hostname or IP address of BMC')
     parser.add_argument('--username', '-u', dest='username', default='root',
                         help='Username for logging into BMC')
     parser.add_argument('--password', '-p', dest='password', default='root',
@@ -26,11 +24,14 @@ def main():
     parser.add_argument('--javaws', '-j', dest='javaws', default=JAVAWS,
                         help='Path to Java webstart executable '
                              '(defaults to %s)' % JAVAWS)
+    parser.add_argument('hostname',  nargs=1, type=str,
+                        help='Hostname/IP address of BMC')
 
     args = parser.parse_args()
 
-    login_url = 'https://%s/rpc/WEBSES/create.asp' % args.hostname
-    jnlp_url = 'https://%s/Java/jviewer.jnlp' % args.hostname
+    login_url = 'https://%s/rpc/WEBSES/create.asp' % args.hostname[0]
+    jnlp_url = 'https://%s/Java/jviewer.jnlp' % args.hostname[0]
+    print login_url
 
     sess = setup_session(args.username, args.password, login_url)
     jnlp_file = write_jnlp(sess, jnlp_url)
