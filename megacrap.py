@@ -7,6 +7,7 @@ import requests
 import subprocess
 import sys
 import tempfile
+from urllib3.exceptions import ProxyError
 
 verify_ssl = False
 
@@ -31,7 +32,6 @@ def main():
 
     login_url = 'https://%s/rpc/WEBSES/create.asp' % args.hostname[0]
     jnlp_url = 'https://%s/Java/jviewer.jnlp' % args.hostname[0]
-    print login_url
 
     sess = setup_session(args.username, args.password, login_url)
     jnlp_file = write_jnlp(sess, jnlp_url)
@@ -53,7 +53,12 @@ def setup_session(username, password, login_url):
     }
 
     # Make request
-    response = sess.post(login_url, login_data, verify=verify_ssl)
+    try:
+        response = sess.post(login_url, login_data, verify=verify_ssl)
+    except ProxyError, e:
+        print "Error establishing session to '%s'.\n%s" % \
+                                               (login_url, e.message)
+        sys.exit(1)
 
 
     ##
